@@ -1,32 +1,54 @@
 // import * as THREE from './three.js-master/build/three.module.js'
-import * as THREE from '../three.js-r145/build/three.module.js'
+// import * as THREE from '../three.js-r145/build/three.module.js'
+// import { OrbitControls } from '../three.js-r145/examples/jsm/controls/OrbitControls.js'
+import * as THREE from 'three'
+import {OrbitControls} from 'OrbitControls'
 
-let scene, camera, renderer
+let scene, cameraTPS, renderer, cameraFPS, activeCamera;
+
 
 let init = () => {
     scene = new THREE.Scene();
 
-    //camera
-    let fov = 75;
     let w = window.innerWidth;
     let h = window.innerHeight;
     let aspect = w/h;
-    camera = new THREE.PerspectiveCamera(fov, aspect);
-    camera.position.set(0,60,100);
 
-    camera.lookAt(0,0,0);
+    //camera Third Person 
+    cameraTPS = new THREE.PerspectiveCamera(45, aspect);
+    cameraTPS.position.set(0, 15, 55);
+    
 
+    // camera First Person
+    cameraFPS = new THREE.PerspectiveCamera(45, aspect);
+    cameraFPS.position.set(-50, 15, 0);
+    cameraFPS.lookAt(0, 15, 0);
+
+    activeCamera = cameraTPS
+    
+    // Create webGL renderer
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(w,h);
     renderer.shadowMap.enabled = true
-    // renderer.setClearColor('black');
-
+    
     document.body.appendChild(renderer.domElement);
+  
+    // make orbitcontrols for the cameraTPS
+    let control = new OrbitControls( cameraTPS, renderer.domElement );
+    control.target = new THREE.Vector3(0, 7, 0);
+    control.update();
 }
+
+// make an event listener to switch between cameras
+document.addEventListener('keydown', (event) => {    
+    if (event.key === 'c' || event.key === 'C') {
+        activeCamera = activeCamera === cameraTPS ? cameraFPS : cameraTPS;
+    }
+});
 
 let render = () => {
     requestAnimationFrame(render);
-    renderer.render(scene, camera);
+    renderer.render(scene, activeCamera);
 }
 
 //blom bisa
@@ -63,10 +85,9 @@ let objects = (shape) => {
             mesh = new THREE.Mesh(geom,material);
             mesh.rotation.x = -Math.PI/2;
             mesh.position.set(0, 0, -7.5);
-            
             scene.add(mesh)
             break;
-
+        
         default:
             break;
     }
@@ -74,6 +95,7 @@ let objects = (shape) => {
 
 let ambientLight = () => {
     const light = new THREE.AmbientLight('#FFFFFC', 0.5);
+    
     scene.add(light);
 }
 
@@ -85,7 +107,7 @@ let spotLight = () => {
 
 window.onload = () => {
     init();
-    skyDay();
+    // skyDay();
     objects("grass");
     ambientLight();
     render();
@@ -94,8 +116,8 @@ window.onload = () => {
 window.onresize = () => {
     let w = window.innerWidth;
     let h = window.innerHeight;
-    camera.aspect = w/h;
+    cameraTPS.aspect = w/h;
     renderer.setSize(w,h);
 
-    camera.updateProjectionMatrix();
+    cameraTPS.updateProjectionMatrix();
 }
