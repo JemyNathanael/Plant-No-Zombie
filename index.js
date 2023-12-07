@@ -3,9 +3,10 @@
 // import { OrbitControls } from '../three.js-r145/examples/jsm/controls/OrbitControls.js'
 import * as THREE from 'three'
 import {OrbitControls} from 'OrbitControls'
+import {GLTFLoader} from 'GLTFLoader'
 
 let scene, cameraTPS, renderer, cameraFPS, activeCamera;
-let day = 1.2;
+let day = 120000;
 let night = 0.5;
 let sky;
 
@@ -47,15 +48,14 @@ let render = () => {
     renderer.render(scene, activeCamera);
 }
 
-//blom bisa
 let skyDay = () => {
     let materialArray = [];
-    let texture_ft = new THREE.TextureLoader().load('./bluecloud_ft.jpg');
-    let texture_bk = new THREE.TextureLoader().load('./bluecloud_bk.jpg');
-    let texture_up = new THREE.TextureLoader().load('./bluecloud_up.jpg');
-    let texture_dn = new THREE.TextureLoader().load('./bluecloud_dn.jpg');
-    let texture_rt = new THREE.TextureLoader().load('./bluecloud_rt.jpg');
-    let texture_lf = new THREE.TextureLoader().load('./bluecloud_lf.jpg');
+    let texture_ft = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_ft.jpg');
+    let texture_bk = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_bk.jpg');
+    let texture_up = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_up.jpg');
+    let texture_dn = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_dn.jpg');
+    let texture_rt = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_rt.jpg');
+    let texture_lf = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_lf.jpg');
 
     materialArray.push(new THREE.MeshBasicMaterial({map: texture_ft}))
     materialArray.push(new THREE.MeshBasicMaterial({map: texture_bk}))
@@ -63,6 +63,10 @@ let skyDay = () => {
     materialArray.push(new THREE.MeshBasicMaterial({map: texture_dn}))
     materialArray.push(new THREE.MeshBasicMaterial({map: texture_rt}))
     materialArray.push(new THREE.MeshBasicMaterial({map: texture_lf}))
+
+    for (let i = 0; i < 6; i++) {
+        materialArray[i].side = THREE.BackSide;
+    }
 
     let skyBoxGeo = new THREE.BoxGeometry(1000,1000,1000);
     let skyBox = new THREE.Mesh(skyBoxGeo, materialArray);
@@ -72,6 +76,7 @@ let skyDay = () => {
 
 let objects = (shape) => {
     let geom, material, mesh, texture;
+    let loader = new GLTFLoader();
     switch (shape) {
 
         case 'grass':
@@ -87,12 +92,168 @@ let objects = (shape) => {
             
             break;
         case 'zombie':
-            texture = new THREE.TextureLoader().load('')
+            // let objToRender = 'zombie';
+           
+            loader.load(
+                './Assets/zombie/scene.gltf', 
+                function(gltf){
+                    const object = gltf.scene;
+                    object.position.set(10, 0, 0);
+                    object.scale.set(60, 60, 60);
+                    object.receiveShadow = true;
+                    object.castShadow = true;
+                    object.rotateY(-45);
+                    scene.add(object);
+                }, function(xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function(error){
+                    console.error(error);
+                }
+            );
+            break;
+        case 'fence':
+            loader.load(
+                './Assets/fence/scene.gltf',
+                function(gltf)
+                {
+                    const root = gltf.scene;
+                    root.scale.set(10, 10, 10);
+                    root.position.set(-40, 8.5, -44);
+        
+                    root.castShadow = true;
+                    root.receiveShadow = true;
+                    root.traverse(function(node){
+                        if(node.isMesh || node.isLight)
+                        {
+                            node.castShadow = true;
+                        }
+                    })
+                    scene.add(root);
+                },
+                function(load)
+                {
+                    console.log( ( load.loaded / load.total * 100 ) + '% loaded' );
+                },
+                function(error)
+                {
+                    console.log("Error", error);
+                }
+            ),
+            loader.load(
+                './Assets/fence/scene.gltf',
+                function(gltf)
+                {
+                    const root = gltf.scene;
+                    root.scale.set(10, 10, 10);
+                    root.position.set(-20, 8.5, -44);
+        
+                    root.castShadow = true;
+                    root.receiveShadow = true;
+                    root.traverse(function(node){
+                        if(node.isMesh || node.isLight)
+                        {
+                            node.castShadow = true;
+                        }
+                    })
+                    scene.add(root);
+                },
+                function(load)
+                {
+                    console.log( ( load.loaded / load.total * 100 ) + '% loaded' );
+                },
+                function(error)
+                {
+                    console.log("Error", error);
+                }
+            ),
+            loader.load(
+                './Assets/fence/scene.gltf',
+                function(gltf)
+                {
+                    const root = gltf.scene;
+                    root.scale.set(10, 10, 10);
+                    root.position.set(0, 8.5, -44);
+        
+                    root.castShadow = true;
+                    root.receiveShadow = true;
+                    root.traverse(function(node){
+                        if(node.isMesh || node.isLight)
+                        {
+                            node.castShadow = true;
+                        }
+                    })
+                    scene.add(root);
+                },
+                function(load)
+                {
+                    console.log( ( load.loaded / load.total * 100 ) + '% loaded' );
+                },
+                function(error)
+                {
+                    console.log("Error", error);
+                }
+            ),
+            loader.load(
+                './Assets/fence/scene.gltf',
+                function(gltf)
+                {
+                    const root = gltf.scene;
+                    root.scale.set(10, 10, 10);
+                    root.position.set(20, 8.5, -44);
+        
+                    root.castShadow = true;
+                    root.receiveShadow = true;
+                    root.traverse(function(node){
+                        if(node.isMesh || node.isLight)
+                        {
+                            node.castShadow = true;
+                        }
+                    })
+                    scene.add(root);
+                },
+                function(load)
+                {
+                    console.log( ( load.loaded / load.total * 100 ) + '% loaded' );
+                },
+                function(error)
+                {
+                    console.log("Error", error);
+                }
+            ),
+            loader.load(
+                './Assets/fence/scene.gltf',
+                function(gltf)
+                {
+                    const root = gltf.scene;
+                    root.scale.set(10, 10, 10);
+                    root.position.set(40, 8.5, -44);
+        
+                    root.castShadow = true;
+                    root.receiveShadow = true;
+                    root.traverse(function(node){
+                        if(node.isMesh || node.isLight)
+                        {
+                            node.castShadow = true;
+                        }
+                    })
+                    scene.add(root);
+                },
+                function(load)
+                {
+                    console.log( ( load.loaded / load.total * 100 ) + '% loaded' );
+                },
+                function(error)
+                {
+                    console.log("Error", error);
+                }
+            )
             break;
         default:
             break;
     }
 }
+
 
 
 let light = () => {
@@ -121,8 +282,10 @@ document.addEventListener('keydown', (event) => {
 window.onload = () => {
     init();
     light();
+    skyDay();
     objects("grass");
-    
+    objects('zombie');
+    objects('fence');
     render();
 }
 
