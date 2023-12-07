@@ -84,8 +84,11 @@ let objects = (shape) => {
             mesh.position.set(0, 0, -7.5);
             mesh.receiveShadow = true
             scene.add(mesh)
+            
             break;
-        
+        case 'zombie':
+            texture = new THREE.TextureLoader().load('')
+            break;
         default:
             break;
     }
