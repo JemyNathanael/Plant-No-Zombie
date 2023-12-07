@@ -1,4 +1,5 @@
-import * as THREE from './three.js-master/build/three.module.js'
+// import * as THREE from './three.js-master/build/three.module.js'
+import * as THREE from '../three.js-r145/build/three.module.js'
 
 let scene, camera, renderer
 
