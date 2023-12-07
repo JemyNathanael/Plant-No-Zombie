@@ -5,7 +5,9 @@ import * as THREE from 'three'
 import {OrbitControls} from 'OrbitControls'
 
 let scene, cameraTPS, renderer, cameraFPS, activeCamera;
-
+let day = 1.2;
+let night = 0.5;
+let sky;
 
 let init = () => {
     scene = new THREE.Scene();
@@ -39,13 +41,7 @@ let init = () => {
     control.update();
 }
 
-// make an event listener to switch between cameras
-document.addEventListener('keydown', (event) => {    
-    if (event.key === 'c' || event.key === 'C') {
-        activeCamera = activeCamera === cameraTPS ? cameraFPS : cameraTPS;
-    }
-});
-
+// render the scene and textures
 let render = () => {
     requestAnimationFrame(render);
     renderer.render(scene, activeCamera);
@@ -81,10 +77,12 @@ let objects = (shape) => {
         case 'grass':
             texture = new THREE.TextureLoader().load('https://thumbs.dreamstime.com/b/green-grass-field-background-soccer-football-sports-lawn-pattern-texture-close-up-image-142564163.jpg');
             geom = new THREE.PlaneGeometry(100,75);
-            material = new THREE.MeshBasicMaterial({map: texture});
+            material = new THREE.MeshStandardMaterial({map: texture});
+            
             mesh = new THREE.Mesh(geom,material);
             mesh.rotation.x = -Math.PI/2;
             mesh.position.set(0, 0, -7.5);
+            mesh.receiveShadow = true
             scene.add(mesh)
             break;
         
@@ -93,31 +91,43 @@ let objects = (shape) => {
     }
 }
 
-let ambientLight = () => {
-    const light = new THREE.AmbientLight('#FFFFFC', 0.5);
-    
-    scene.add(light);
+
+let light = () => {
+    // Create ambient light
+    let ambientLight = new THREE.AmbientLight(0xFFFFFC, 0.5);
+    ambientLight.castShadow = false;
+    ambientLight.position.set(0, 0, 0);
+    scene.add(ambientLight);
+
+    let spotLight = new THREE.SpotLight(0xFFFFFF, sky);
+    spotLight.castShadow = true;
+    spotLight.position.set(-80, 40, 0);
+    scene.add(spotLight);
 }
 
-//blom jadi
-let spotLight = () => {
-    const light = new THREE.SpotLight('#FFFFFF', 1.2);
-
-}
+// make an event listener for every key pressed based on the case
+document.addEventListener('keydown', (event) => {    
+    if (event.key === 'c' || event.key === 'C') {
+        activeCamera = activeCamera === cameraTPS ? cameraFPS : cameraTPS;
+    }
+    if (event.key === '  ' || event.key === 'Spacebar'){
+        sky = sky === day ? night : day;
+    }
+});
 
 window.onload = () => {
     init();
-    // skyDay();
+    light();
     objects("grass");
-    ambientLight();
+    
     render();
 }
 
 window.onresize = () => {
     let w = window.innerWidth;
     let h = window.innerHeight;
-    cameraTPS.aspect = w/h;
+    activeCamera.aspect = w/h;
     renderer.setSize(w,h);
 
-    cameraTPS.updateProjectionMatrix();
+    activeCamera.updateProjectionMatrix();
 }
