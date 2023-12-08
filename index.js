@@ -4,11 +4,16 @@
 import * as THREE from 'three'
 import {OrbitControls} from 'OrbitControls'
 import {GLTFLoader} from 'GLTFLoader'
+import {TextGeometry} from 'TextGeometry'
+import {FontLoader} from 'FontLoader'
+// import {GentilisBold} from '../three.js-r145/examples/fonts/gentilis_bold.typeface.json'
 
 let scene, cameraTPS, renderer, cameraFPS, activeCamera;
 let day = 120000;
 let night = 0.5;
 let sky;
+// let skybox;
+// let skyboxNight;
 
 let init = () => {
     scene = new THREE.Scene();
@@ -48,6 +53,8 @@ let render = () => {
     renderer.render(scene, activeCamera);
 }
 
+let isDay = true;
+let skyBox;
 let skyDay = () => {
     let materialArray = [];
     let texture_ft = new THREE.TextureLoader().load('./Assets/cloudy/bluecloud_ft.jpg');
@@ -69,14 +76,52 @@ let skyDay = () => {
     }
 
     let skyBoxGeo = new THREE.BoxGeometry(1000,1000,1000);
-    let skyBox = new THREE.Mesh(skyBoxGeo, materialArray);
+    skyBox = new THREE.Mesh(skyBoxGeo, materialArray);
 
     scene.add(skyBox);
+
+    let materialArrayNight = [];
+    let texture_ftNight = new THREE.TextureLoader().load('./Assets/nightskycolor.png');
+    let texture_bkNight = new THREE.TextureLoader().load('./Assets/nightskycolor.png');
+    let texture_upNight = new THREE.TextureLoader().load('./Assets/nightskycolor.png');
+    let texture_dnNight = new THREE.TextureLoader().load('./Assets/nightskycolor.png');
+    let texture_rtNight = new THREE.TextureLoader().load('./Assets/nightskycolor.png');
+    let texture_lfNight = new THREE.TextureLoader().load('./Assets/nightskycolor.png');
+
+    materialArrayNight.push(new THREE.MeshBasicMaterial({map: texture_ftNight}))
+    materialArrayNight.push(new THREE.MeshBasicMaterial({map: texture_bkNight}))
+    materialArrayNight.push(new THREE.MeshBasicMaterial({map: texture_upNight}))
+    materialArrayNight.push(new THREE.MeshBasicMaterial({map: texture_dnNight}))
+    materialArrayNight.push(new THREE.MeshBasicMaterial({map: texture_rtNight}))
+    materialArrayNight.push(new THREE.MeshBasicMaterial({map: texture_lfNight}))
+
+    for (let i = 0; i < 6; i++) {
+        materialArrayNight[i].side = THREE.BackSide;
+    }
+
+    let skyBoxNightGeo = new THREE.BoxGeometry(1000,1000,1000);
+    let skyboxNight = new THREE.Mesh(skyBoxNightGeo, materialArrayNight);
+
+    // scene.add(skyBoxNight);
+
+    // Not working
+    document.addEventListener('keydown', (event) => {
+        let isDay = true;
+        if(event.code === 'Space'){
+            isDay ? scene.add(skyBox) : scene.add(skyboxNight);
+            
+            isDay ? scene.remove(skyboxNight) : scene.remove(skyBox);
+            isDay = !isDay;
+        }
+    })
 }
 
+
+// make 3D objects 
 let objects = (shape) => {
     let geom, material, mesh, texture;
     let loader = new GLTFLoader();
+    
     switch (shape) {
 
         case 'grass':
@@ -249,13 +294,30 @@ let objects = (shape) => {
                 }
             )
             break;
+        case 'text':
+            const txtLoader = new FontLoader();
+            txtLoader.load(
+                '../three.js-r145/examples/fonts/gentilis_bold.typeface.json', (gentilisBold)=> {
+                    let textGeom = new TextGeometry('Plants NO Zombies', {
+                        color: 0xCCB7B6,
+                        font: gentilisBold,
+                        size: 10,
+                        height:1
+                    });
+                    let textMats = new THREE.MeshPhongMaterial();
+                    let textMesh = new THREE.Mesh(textGeom, textMats);
+                    textMesh.position.set(-55, 20, -50);
+                    scene.add(textMesh);
+                }
+            )
+            break;
         default:
             break;
     }
 }
 
 
-
+// Create the lightning
 let light = () => {
     // Create ambient light
     let ambientLight = new THREE.AmbientLight(0xFFFFFC, 0.5);
@@ -274,10 +336,12 @@ document.addEventListener('keydown', (event) => {
     if (event.key === 'c' || event.key === 'C') {
         activeCamera = activeCamera === cameraTPS ? cameraFPS : cameraTPS;
     }
-    if (event.key === '  ' || event.key === 'Spacebar'){
+    if (event.code === 'Space'){
         sky = sky === day ? night : day;
     }
 });
+
+
 
 window.onload = () => {
     init();
@@ -286,6 +350,7 @@ window.onload = () => {
     objects("grass");
     objects('zombie');
     objects('fence');
+    objects('text');
     render();
 }
 
